@@ -1,0 +1,8 @@
+---
+applications:
+- name: AppDemo
+  memory: 1G
+  instances: 1
+  host: AppDemo
+  disk_quota: 1G
+  path: target/struts.war
