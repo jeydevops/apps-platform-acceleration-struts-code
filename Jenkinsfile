@@ -14,12 +14,17 @@ stage ('Dev_Deployment') {
           sh "mvn -B help:evaluate -Dexpression=project.packaging | grep -e '^[^[]' > packagingFile"
           packaging=readFile('packagingFile').trim()
           sh "echo '  path: target/${projectName}.${packaging}' >>manifest.yml"
+          pcfApiUrl = sh (script: 'echo $pcfApiUrl',returnStdout: true).trim()
+          pcfDevOrg = sh (script: 'echo $pcfDevOrg',returnStdout: true).trim()
+          pcfDevSpace = sh (script: 'echo $pcfDevSpace',returnStdout: true).trim()
+
+
    
         pushToCloudFoundry(
-          target: env.$pcfApiUrl,
+           target: ${pcfApiUrl},
           credentialsId: 'devpcfcreds',
-          organization: env.$pcfDevOrg,
-          cloudSpace: env.$pcfDevSpace,
+           organization: ${pcfDevOrg},
+           cloudSpace: ${pcfDevSpace},
           manifestChoice: [manifestFile: 'manifest.yml']
         )
 
