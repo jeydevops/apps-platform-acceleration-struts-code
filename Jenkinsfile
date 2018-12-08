@@ -1,34 +1,28 @@
-env.dockerimagename="devopsbasservice/buildonframework:buildon-cloudfoundry"
+env.dockerimagename="devopsbasservice/buildonframework:spabuildon-pcf"
 node {
+
    stage ('Build') {
-   //If some other Repository is to be given apart from current repo, provide git URL as below demo...
-    checkout scm
-    sh 'mvn clean package -DskipTests=True'
-  }   
- 
-   stage ('Dev_Deployment') {
-          //Projectname
+     checkout scm
+     sh 'mvn clean package -DskipTests=True'
+  }
+
+stage ('Dev_Deployment') {
+
           sh "mvn -B help:evaluate -Dexpression=project.build.finalName | grep -e '^[^[]' > finalNameFile"
           projectName=readFile('finalNameFile').trim()
-   
-          //Packagename
+
           sh "mvn -B help:evaluate -Dexpression=project.packaging | grep -e '^[^[]' > packagingFile"
           packaging=readFile('packagingFile').trim()
-        
-         //sh "echo '  path: target/${projectName}.${packaging}' >>DevManifest.yml"
-            def yaml = readYaml file: "Devmanifest.yml"
-            print yaml.applications.path
-            yaml['applications'][0]['path'] = "target/${projectName}.${packaging}"
-            sh 'rm Devmanifest.yml'
-            writeYaml file:"Devmanifest.yml", data:yaml
-
+          sh "echo '  path: target/${projectName}.${packaging}' >>manifest.yml"
+   
         pushToCloudFoundry(
-          target: 'api.system.cumuluslabs.io',
+          target: $pcfApiUrl,
           credentialsId: 'devpcfcreds',
-          organization: 'forward-engineering',
-          cloudSpace: 'dev',
-          manifestChoice: [manifestFile: 'DevManifest.yml']
+          organization: $pcfDevOrg,
+          cloudSpace: $pcfDevSpace,
+          manifestChoice: [manifestFile: 'manifest.yml']
         )
+
 }
-  
+
 }
