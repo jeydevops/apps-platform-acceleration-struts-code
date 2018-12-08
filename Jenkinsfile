@@ -16,10 +16,10 @@ stage ('Dev_Deployment') {
           sh "echo '  path: target/${projectName}.${packaging}' >>manifest.yml"
    
         pushToCloudFoundry(
-          target: Env['pcfApiUrl'],
+          target: env.pcfApiUrl,
           credentialsId: 'devpcfcreds',
-          organization: Env['pcfDevOrg'],
-          cloudSpace: Env['pcfDevSpace'],
+          organization: env.pcfDevOrg,
+          cloudSpace: env.pcfDevSpace,
           manifestChoice: [manifestFile: 'manifest.yml']
         )
 
